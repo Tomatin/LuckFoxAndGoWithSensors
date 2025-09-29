@@ -19,6 +19,7 @@ This is an example of how to use a **Luckfox Pico** board with an application wr
   - [Running in the board](#running-in-the-board)
   - [Debugging](#debugging)
   - [Web server](#web-server)
+  - [Links](#links)
 
 ## Hardware requirements
 
@@ -179,3 +180,21 @@ First, you need to copy the contents of the static folder to the micro SD card.
 Copy static folder to -> /mnt/sdcard/static
 
 ![Dashboard](images/dashboard.png)
+
+## Links
+
+[Manufacturer's website](https://www.luckfox.com/EN-Luckfox-Pico-Plus?ci=531)
+
+[Board Wiki](https://wiki.luckfox.com/Luckfox-Pico-Pro-Max)
+
+[Board SDK](https://wiki.luckfox.com/Luckfox-Pico-Pro-Max/SDK)
+
+[Board Flashing](https://wiki.luckfox.com/Luckfox-Pico-Pro-Max/Flash-image)
+
+[Device tree source](https://wiki.luckfox.com/Luckfox-Pico-Pro-Max/Device-Tree)
+
+[Board login](https://wiki.luckfox.com/Luckfox-Pico-Pro-Max/Login)
+
+[Packaging Custom Files into the System Image](https://wiki.luckfox.com/Luckfox-Pico-RV1106/Luckfox-Pico-86-Panel/SDK/#3-packaging-custom-files-into-the-system-image)
+
+[Delve ARM32](https://github.com/antoineco/delve/tree/arm32)
