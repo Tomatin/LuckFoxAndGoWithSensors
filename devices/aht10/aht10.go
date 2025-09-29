@@ -32,7 +32,7 @@ func Atach() {
 	initCmd := []byte{0xE1, 0x08, 0x00}
 
 	if err := i2c_sensor.Write(initCmd); err != nil {
-		panic(fmt.Errorf("error inicializando ATH10: %w", err))
+		panic(fmt.Errorf("error init the ATH10: %w", err))
 	}
 
 	time.Sleep(50 * time.Millisecond)

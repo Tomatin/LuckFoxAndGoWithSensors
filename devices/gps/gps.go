@@ -114,7 +114,8 @@ func GpsGetRMCFrame() (*RMC, error) {
 	// frame[ 8] => Course over ground
 	// frame[ 9] => Date
 	// frame[10] =>
-	// frame[11] => Checksum
+	// frame[11] =>
+	// frame[12] => Checksum
 
 	// Verify checksum
 	if frame[12][2:] == fmt.Sprintf("%02X", nmea_checksum(sbuf)) {
