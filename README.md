@@ -1,200 +1,216 @@
-# About the Luckfox Pico board and Go example
+# Implementation Overview: Luckfox Pico Board with Go Application
 
-This is an example of how to use a **Luckfox Pico** board with an application written in **Go**. The application allows you to read a GPS and an external sensor, as well as control an LED.
+This document outlines the procedure for utilizing the **Luckfox Pico** board with an application developed in **Go**. The application facilitates the acquisition of data from a GPS module and an external sensor, alongside the control of an onboard LED.
 
 ![Sensor](images/sensor.jpg)
 
-<!-- omit in toc -->
 ## Table of Contents
 
-- [About the Luckfox Pico board and Go example](#about-the-luckfox-pico-board-and-go-example)
-  - [Hardware requirements](#hardware-requirements)
-  - [Software requirements](#software-requirements)
-  - [Connections](#connections)
-  - [SDK](#sdk)
-  - [Burning image](#burning-image)
-  - [Login](#login)
-  - [Peripherals setup](#peripherals-setup)
-  - [Compiling](#compiling)
-  - [Running in the board](#running-in-the-board)
-  - [Debugging](#debugging)
-  - [Web server](#web-server)
-  - [Links](#links)
+- [Implementation Overview: Luckfox Pico Board with Go Application](#implementation-overview-luckfox-pico-board-with-go-application)
+  - [Table of Contents](#table-of-contents)
+  - [Hardware Prerequisites](#hardware-prerequisites)
+  - [Software Requirements](#software-requirements)
+  - [Interconnect Diagram](#interconnect-diagram)
+  - [SDK Configuration and Compilation](#sdk-configuration-and-compilation)
+  - [Image Flashing Procedure](#image-flashing-procedure)
+  - [Device Access and Login](#device-access-and-login)
+  - [Peripheral Configuration](#peripheral-configuration)
+  - [Application Compilation](#application-compilation)
+  - [Execution on the Target Board](#execution-on-the-target-board)
+  - [Remote Debugging Setup](#remote-debugging-setup)
+  - [Integrated Web Server Functionality](#integrated-web-server-functionality)
+  - [References and Resources](#references-and-resources)
 
-## Hardware requirements
+---
 
-- Luckfox Pico Pro/Max board  
-- GPS uBlox Neo-6M module  
+## Hardware Prerequisites
+
+- Luckfox Pico Pro/Max development board
+- uBlox Neo-6M GPS module
 - AHT10 Temperature and humidity sensor
-- LED
-- USB TTL serial conversor
-- 5v Power supply (optional)
-- Micro SD
+- Light Emitting Diode (LED)
+- USB-TTL serial converter
+- 5V DC power supply (optional)
+- Micro SD card
 
-## Software requirements
+---
 
-- Ubuntu 22.04
-- Go 1.23+  
-- VS Code + Go extension  
-- Luckfox Pico Pro/Max SDK 
+## Software Requirements
 
-## Connections
+- Ubuntu 22.04 LTS operating system
+- Go programming language environment (version 1.23+)
+- VS Code integrated development environment (IDE) with the Go extension
+- Luckfox Pico Pro/Max Software Development Kit (SDK)
 
-- UART2 (Pin 1-2)     -> stdin/stdout
-- UART3 (Pin 10-20)   -> GPS
-- I2C0 (Pin 24-25)    -> AHT10
-- GPIO1_C7 (Pin 4)    -> Led
-- VSYS (Pin 39)       -> 5v
+---
 
+## Interconnect Diagram
 
-## SDK
+| Interface | Pins | Component | Function |
+| :--- | :--- | :--- | :--- |
+| UART2 | (Pin 1-2) | N/A | Standard Input/Output (stdin/stdout) |
+| UART3 | (Pin 10-20) | GPS uBlox Neo-6M | Global Positioning System data link |
+| I2C0 | (Pin 24-25) | AHT10 | Inter-Integrated Circuit sensor communication |
+| GPIO1\_C7 | (Pin 4) | LED | General Purpose Input/Output control |
+| VSYS | (Pin 39) | N/A | 5V Power Supply Rail |
 
-Once you have purchased the Pico board, you need to download the SDK from the manufacturer's website and compile it. Since the SDK is built on Buildroot, it is possible to configure the rootfs and the kernel by executing these commands:
+---
 
-- ./build.sh buildrootconfig
-- ./build.sh kernelconfig
+## SDK Configuration and Compilation
 
-Once the compilation is complete, which may take a long time the first time, the binaries are stored in the IMAGE folder.
+Upon procurement of the Pico board, the **SDK** must be downloaded from the manufacturer's official repository and subsequently compiled. As the SDK is architected on **Buildroot**, the root filesystem and kernel can be configured by executing the following commands:
 
+- `./build.sh buildrootconfig`
+- `./build.sh kernelconfig`
 
-## Burning image
+Upon successful completion of the compilation process—which may entail a significant duration for the initial run—the resultant binary artifacts are stored within the `IMAGE` directory.
 
-In my case, to record the image, I used Windows. Before doing so, I had to install the following:
+---
+
+## Image Flashing Procedure
+
+For the purpose of flashing the system image onto the board, the procedure was performed using a Windows host environment. Prior to the operation, the following utilities were required:
 
 - RK DriverAssitant
-- SocToolKit flashing tool
+- SocToolKit flashing utility
 
-Then connect the board to a USB port and follow the detailed steps.
+Subsequently, connect the board to a USB port and adhere to the detailed, step-by-step flashing instructions provided in the official documentation.
 
-## Login
+---
 
-Although there are different ways to log in (adb-ssh-telnet), I used telnet, which is the simplest. 
+## Device Access and Login
 
-- Turn on the device, in my case with an external 5V power supply
-- Connect an Ethernet cable 
-- Turn on the board
-- Wait until DHCP assigns you an IP address. You can see the value of this ip address by running ifconfig
+While several methods for device access exist (e.g., ADB, SSH, Telnet, serial), **serial** was selected for its streamlined simplicity. The login process involves the following steps:
 
+- Connectt USB-TTL serial converter to pin 1-2 (UART2)
+- Power on the device, in this instance utilizing an external 5V power source.
+- Open a serial terminal application, such as GTKTerm, and set connection parameters to 115200,N,8,1
+- Wait until the boot finishes, then enter the username and password to log in
 
-## Peripherals setup
+---
 
-In order to use peripherals, they must first be defined in the dts (device tree structure). This can be done:
+## Peripheral Configuration
 
-- By compiling and modifying the corresponding dts files
-- In real time, from the console running **luckfox-config**
+To ensure the operability of external peripherals, their definitions must be specified within the **Device Tree Source** (`.dts`). This configuration can be achieved through two primary mechanisms:
 
-By performing this last action, the change becomes permanent. In my case, I only had to configure the UART and I2C since the GPIOs are default.  
+- **Static Configuration:** Modifying and recompiling the corresponding `.dts` files within the kernel source.
+- **Dynamic Configuration:** Configuring the parameters in real-time from the console by executing the `luckfox-config` utility.
 
+Employing the latter method ensures the configuration changes are persistent across reboots. In this specific implementation, only the **UART** and **I2C** interfaces required configuration, as the **GPIO** settings utilize default values.
 
-## Compiling
+---
 
-- To compile the project, simply run **make**
-- If you need a build with debug information, use **make debug**
+## Application Compilation
 
+- To compile the project's release version, simply execute the `make` command.
+- For a build incorporating debug symbols and information, use `make debug`.
 
-## Running in the board
+---
 
-To make things easier, I used the /tmp folder to copy and run the application. 
+## Execution on the Target Board
+
+For ease of deployment and execution, the `/tmp` directory was leveraged for copying and running the application binary.
 
 ```go
-
 package main
 
 import (
-	"log"
-	"net/http"
+  "log"
+  "net/http"
 )
 
 func main() {
-	// Serve static files from the current directory
-	fs := http.FileServer(http.Dir("."))
-	http.Handle("/", fs)
+  // Serve static files from the current directory
+  fs := http.FileServer(http.Dir("."))
+  http.Handle("/", fs)
 
-	// Start the server on port 8000
-	log.Println("Serving on :8000")
-	err := http.ListenAndServe(":8000", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+  // Start the server on port 8000
+  log.Println("Serving on :8000")
+  err := http.ListenAndServe(":8000", nil)
+  if err != nil {
+    log.Fatal(err)
+  }
 }
-```
-- On the host PC, you need to run a file server. Here is a simple example simulating Python's HTTPServer
-- From the /tmp folder, run wget http://192.168.0.41:8000/sensor
-- chmod a+x sensor
-- ./sensor
+````
 
-## Debugging
+  - On the host machine, a file server must be initiated (a simple example simulating Python's `HTTPServer` is provided above).
+  - From the target board's `/tmp` directory, use `wget http://192.168.0.41:8000/sensor` to download the binary.
+  - Grant execution permissions: `chmod a+x sensor`.
+  - Execute the application: `./sensor`.
 
-In my personal experience, a development environment without a debugger is practically unworkable. In the case of Go, the most recommended debugger is Delve. From what I have been able to find out, Delve is not compatible with 32-bit ARM architecture, fortunately, I found this repository that provides compatibility with 32-bit ARM.
+-----
 
-- Download the zip file from https://github.com/antoineco/delve/tree/arm32
-- Uncompress the zip file
-- Compile -> GOOS=linux GOARCH=arm GOARM=7 go build ./cmd/dlv
+## Remote Debugging Setup
 
-Once compiled, dlv can be copied directly to the /tmp folder with wget or added to the final image, to do the latter, you must do the following:
+A robust development workflow mandates the use of a debugger. For Go applications, **Delve** is the recommended tool. While Delve typically lacks native support for the 32-bit ARM architecture, a compatible repository was identified to bridge this gap.
 
-- Create this folder: "sdk/luckfox-pico/project/cfg/BoardConfig_IPC/overlay"
-- Create this folder: "overlay/custom-overlay"
-- Create the folder structure you want to replicate, for example “usr/bin”
-- Copy dlv into this last folder
-- Ensure that dlv has execution permissions
-- Add to the file /sdk/luckfox-pico/project/cfg/BoardConfig_IPC/BoardConfig-XXXXX.mk -> export RK_POST_OVERLAY="custom-overlay"
-- Rebuild rootfs
-- Burn the new image
+  - Download the source ZIP file from the specialized branch: `https://github.com/antoineco/delve/tree/arm32`.
+  - Decompress the archive.
+  - Compile the debugger for the target architecture: `GOOS=linux GOARCH=arm GOARM=7 go build ./cmd/dlv`.
 
-To run in debug mode, first edit the launch.json file from VSCode. 
+The resulting `dlv` binary can be transferred to the board via `wget` to the `/tmp` folder, or permanently integrated into the final system image. The integration procedure is as follows:
+
+  - Create the following directory structure: `sdk/luckfox-pico/project/cfg/BoardConfig_IPC/overlay/custom-overlay`.
+  - Within `custom-overlay`, replicate the desired target filesystem path, e.g., `usr/bin`.
+  - Copy the compiled `dlv` binary into the designated target directory (`usr/bin`).
+  - Verify that the `dlv` binary possesses execute permissions.
+  - Append the following directive to the configuration file `/sdk/luckfox-pico/project/cfg/BoardConfig_IPC/BoardConfig-XXXXX.mk`: `export RK_POST_OVERLAY="custom-overlay"`.
+  - Rebuild the root filesystem and flash the new image.
+
+To commence a debug session, first configure the `launch.json` file in VS Code:
 
 ```json
 {
   // Use IntelliSense to learn about possible attributes.
   // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  // For more information, visit: [https://go.microsoft.com/fwlink/?linkid=830387](https://go.microsoft.com/fwlink/?linkid=830387)
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Remote Go debbuging",
+      "name": "Remote Go Debugging",
       "type": "go",
       "request": "attach",
       "mode": "remote",
       "remotePath": "${workspaceFolder}",
       "port": 2345,
-      "host": "192.168.0.46",
+      "host": "192.168.0.46", // Target board IP address
       "showLog": true
     }
   ]
 
 }
 ```
-From the board, run the following command:
 
-- dlv --listen=:2345 --headless=true --check-go-version=false --api-version=2 exec ./sensor
+Initiate the debug server on the target board with the following command:
 
+  - `dlv --listen=:2345 --headless=true --check-go-version=false --api-version=2 exec ./sensor`
 
-## Web server
+-----
 
-It is possible to access GPS and sensor data through a web page that the application itself serves. 
-<ip_pico_board:8080>
+## Integrated Web Server Functionality
 
-First, you need to copy the contents of the static folder to the micro SD card.
+The application features an embedded web server, enabling access to the GPS and sensor data via a standard web interface at: `<ip_pico_board:8080>`.
 
-Copy static folder to -> /mnt/sdcard/static
+Prior to access, the contents of the `static` folder must be copied to the Micro SD card:
 
-![Dashboard](images/dashboard.png)
+Copy `static` folder to $\rightarrow$ `/mnt/sdcard/static`
 
-## Links
+-----
 
-[Manufacturer's website](https://www.luckfox.com/EN-Luckfox-Pico-Plus?ci=531)
+## References and Resources
 
-[Board Wiki](https://wiki.luckfox.com/Luckfox-Pico-Pro-Max)
+[Manufacturer's Official Website](https://www.luckfox.com/EN-Luckfox-Pico-Plus?ci=531)
 
-[Board SDK](https://wiki.luckfox.com/Luckfox-Pico-Pro-Max/SDK)
+[Board Wiki and Documentation](https://wiki.luckfox.com/Luckfox-Pico-Pro-Max)
 
-[Board Flashing](https://wiki.luckfox.com/Luckfox-Pico-Pro-Max/Flash-image)
+[Board SDK Repository](https://wiki.luckfox.com/Luckfox-Pico-Pro-Max/SDK)
 
-[Device tree source](https://wiki.luckfox.com/Luckfox-Pico-Pro-Max/Device-Tree)
+[Image Flashing Guide](https://wiki.luckfox.com/Luckfox-Pico-Pro-Max/Flash-image)
 
-[Board login](https://wiki.luckfox.com/Luckfox-Pico-Pro-Max/Login)
+[Device Tree Source Documentation](https://wiki.luckfox.com/Luckfox-Pico-Pro-Max/Device-Tree)
 
-[Packaging Custom Files into the System Image](https://wiki.luckfox.com/Luckfox-Pico-RV1106/Luckfox-Pico-86-Panel/SDK/#3-packaging-custom-files-into-the-system-image)
+[Device Login Procedures](https://wiki.luckfox.com/Luckfox-Pico-Pro-Max/Login)
 
-[Delve ARM32](https://github.com/antoineco/delve/tree/arm32)
+[Guide: Packaging Custom Files into the System Image](https://wiki.luckfox.com/Luckfox-Pico-RV1106/Luckfox-Pico-86-Panel/SDK/#3-packaging-custom-files-into-the-system-image)
+
+[Delve ARM32 Compatibility Repository](https://github.com/antoineco/delve/tree/arm32)
