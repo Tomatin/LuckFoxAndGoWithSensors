@@ -133,8 +133,8 @@ func main() {
 }
 ````
 
-  - On the host machine, a file server must be initiated (a simple example simulating Python's `HTTPServer` is provided above).
-  - From the target board's `/tmp` directory, use `wget http://192.168.0.41:8000/sensor` to download the binary.
+  - On the host machine, a file server must be initiated (a simple example simulating Python's `SimpleHTTPServer` is provided above).
+  - From the target board's `/tmp` directory, use `wget http://192.168.0.41:8000/sensor` to download the binary, where 192.168.0.41 is the ip address of the host machine.
   - Grant execution permissions: `chmod a+x sensor`.
   - Execute the application: `./sensor`.
 
