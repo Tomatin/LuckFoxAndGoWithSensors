@@ -49,8 +49,8 @@ This document outlines the procedure for utilizing the **Luckfox Pico** board wi
 | Interface | Pins | Component | Function |
 | :--- | :--- | :--- | :--- |
 | UART2 | (Pin 1-2) | N/A | Standard Input/Output (stdin/stdout) |
-| UART3 | (Pin 10-20) | GPS uBlox Neo-6M | Global Positioning System data link |
-| I2C0 | (Pin 24-25) | AHT10 | Inter-Integrated Circuit sensor communication |
+| UART3 | (Pin 19-20) | GPS uBlox Neo-6M | Global Positioning System data link |
+| I2C3_M0 | (Pin 29-34) | AHT10 | Inter-Integrated Circuit sensor communication |
 | GPIO1\_C7 | (Pin 4) | LED | General Purpose Input/Output control |
 | VSYS | (Pin 39) | N/A | 5V Power Supply Rail |
 
