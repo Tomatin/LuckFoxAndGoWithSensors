@@ -2,6 +2,7 @@ package gps
 
 import (
 	"LuckFoxGo/io/uart"
+	"LuckFoxGo/timeout"
 	"fmt"
 	"strconv"
 	"strings"
@@ -67,7 +68,14 @@ func GpsGetRMCFrame() (*RMC, error) {
 	// Get NMEA RMC frame
 	buf := make([]byte, 0, 256)
 
+	// Init timeout
+	timeout := timeout.TimerEventSet(30 * time.Second)
+
 	for {
+		if timeout.TimerEventHasExpired() {
+			return nil, fmt.Errorf("Timeout")
+		}
+
 		// Read until new line char
 		tmp, n, err := read_one_byte()
 
